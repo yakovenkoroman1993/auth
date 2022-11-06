@@ -1,0 +1,17 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  input {
+    margin-bottom: 10px;
+  }
+  label {
+    display: flex;
+    flex-direction: column;
+  }
+  button {
+    margin-top: 10px;
+  }
+  a {
+    margin-top: 10px;
+  }
+}

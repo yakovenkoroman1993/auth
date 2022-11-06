@@ -1,0 +1,39 @@
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+user=mysql
+
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+
+bind-address=0.0.0.0
+skip-host-cache
+skip-name-resolve
+max_connections=120
+sql-mode="NO_ENGINE_SUBSTITUTION,NO_AUTO_CREATE_USER"
+query_cache_type=0
+query_cache_size=0
+table_open_cache=1024
+tmp_table_size=16777216
+sync_frm=0
+max_heap_table_size=16777216
+innodb_buffer_pool_size=134217728
+innodb_log_file_size=50331648
+join_buffer_size=262144
+#innodb_temp_data_file_path=../../../tmp/ibtmp1:12M:autoextend
+
+performance_schema=ON
+performance-schema-instrument='stage/%=ON'
+performance-schema-consumer-events-stages-current=ON
+performance-schema-consumer-events-stages-history=ON
+performance-schema-consumer-events-stages-history-long=ON
+
+# Uncomment below line to log all queries, useful for debugging (use for development only)
+# general-log=ON
+general-log-file=/var/log/mysql/general.log
+
+# Uncomment below line to log slow queries (use for development only)
+# slow-query-log=1
+slow-query-log-file=/var/log/mysql/slow.log
+long-query-time=5
+log-queries-not-using-indexes

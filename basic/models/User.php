@@ -2,103 +2,97 @@
 
 namespace app\models;
 
-class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
+use Exception;
+use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
+use yii;
+
+class User extends ActiveRecord implements IdentityInterface
 {
-    public $id;
-    public $username;
-    public $password;
-    public $authKey;
-    public $accessToken;
+    public static function tableName(): string
+    {
+        return "users";
+    }
 
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
-
+    public function rules(): array
+    {
+        return [
+            [["email"], "required"]
+        ];
+    }
 
     /**
-     * {@inheritdoc}
+     * @param int|string $id
+     * @return User|IdentityInterface|null
      */
     public static function findIdentity($id)
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        return static::findOne($id);
     }
 
     /**
-     * {@inheritdoc}
+     * @param mixed $token
+     * @param null $type
+     * @return User|IdentityInterface|null
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        foreach (self::$users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
-        }
-
-        return null;
+//        throw new Exception("ERRRRORROR, $token");
+        return static::findOne(['accessToken' => $token]);
     }
 
     /**
-     * Finds user by username
-     *
-     * @param string $username
-     * @return static|null
+     * @return int
      */
-    public static function findByUsername($username)
-    {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
+     */
+    public function getAccessToken(): string {
+        return $this->accessToken;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRegKey(): string {
+        return $this->regKey;
+    }
+
+    /**
+     * @throws Exception
      */
     public function getAuthKey()
     {
-        return $this->authKey;
+        throw new Exception("Not implemented");
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $authKey
+     * @throws Exception
      */
     public function validateAuthKey($authKey)
     {
-        return $this->authKey === $authKey;
+        throw new Exception("Not implemented");
     }
 
     /**
-     * Validates password
-     *
-     * @param string $password password to validate
-     * @return bool if password provided is valid for current user
+     * @param bool $insert
+     * @return bool
+     * @throws yii\base\Exception
      */
-    public function validatePassword($password)
+    public function beforeSave($insert): bool
     {
-        return $this->password === $password;
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord) {
+                $this->regKey = yii::$app->security->generateRandomString();
+            }
+            return true;
+        }
+        return false;
     }
 }

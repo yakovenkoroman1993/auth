@@ -1,0 +1,52 @@
+version: "3.7"
+
+services:
+    nginx:
+        container_name: auth_nginx
+        image: nginx:1.16.0-alpine
+        ports:
+            - target: 80
+              published: 80
+              protocol: tcp
+        volumes:
+            - type: bind
+              source: ./etc/nginx
+              target: /etc/nginx
+              read_only: true
+
+        environment:
+            TZ: UTC
+    mysql:
+        container_name: auth_mysql
+        image: mysql/mysql-server:5.7
+        expose:
+            - 3306
+        ports:
+            - target: 3306
+              published: 3306
+              protocol: tcp
+              mode: host
+        volumes:
+            - type: volume
+              source: vol_mysql
+              target: /var/lib/mysql
+              consistency: delegated
+            - type: bind
+              source: ./etc/mysql-conf.d/mysqld.cnf
+              target: /etc/my.cnf:Z
+              read_only: true
+        environment:
+            TZ: UTC
+            MYSQL_ROOT_PASSWORD: development
+            MYSQL_DATABASE: development
+            MYSQL_USER: development
+            MYSQL_PASSWORD: development
+        sysctls:
+            net.core.somaxconn: 65535
+volumes:
+    vol_mysql:
+        driver: local
+
+networks:
+    default:
+        driver: bridge
