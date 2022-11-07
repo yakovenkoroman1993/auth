@@ -1,16 +1,32 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
 import { useUserStore } from "@/stores/user";
+import type { User } from "@/stores/user";
+import { defineComponent } from 'vue'
 
-export default defineComponent({
-  data() {
+type Data = {
+  user: User | null;
+  loading: boolean;
+}
+
+export default defineComponent<Data>({
+  data(){
     return {
-      user: null as null | any, // todo: !
+      user: null,
       loading: false,
     }
   },
   async created() {
-    this.user = await this.userStore.currentUser;
+    const currentUser: User = await this.userStore.currentUser;
+    this.user = currentUser;
+    if (!currentUser.firstName || !currentUser.lastName) {
+      this.$router.push("/profile");
+      return;
+    }
+    if (currentUser.role === "admin") {
+      this.$router.push("admin/users");
+      return;
+    }
+
   },
   setup() {
     return {
@@ -24,8 +40,8 @@ export default defineComponent({
 </script>
 
 <template>
-  <main>
-    HOME
+  <main v-if="user && user.firstName && user.lastName">
+    Welcome to Auth App, {{user.firstName}} {{user.lastName}}
   </main>
 </template>
 

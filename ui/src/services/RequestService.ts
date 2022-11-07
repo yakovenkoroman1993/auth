@@ -6,7 +6,7 @@ type Dict<T> = {
 
 type Method = "POST" | "GET" | "PUT" | "DELETE";
 
-const serverHostUrl = "/api"; // todo: in env
+const serverHostUrl = "/api";
 
 export class RequestService {
   private static get token(): string {
@@ -60,7 +60,6 @@ export class RequestService {
       body: fd,
       ...(!guest && ({
         headers: {
-          // "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         }
       }))
@@ -81,7 +80,6 @@ export class RequestService {
       method,
       cache: "no-cache",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     });
@@ -92,10 +90,15 @@ export class RequestService {
   private static async getJsonFromResponseIfNoErrors<T>(
     response: Response
   ): Promise<T> {
-    if (!response.ok) {
-      throw new Error("Request failed. Response is not ok");
-    }
     const json = await response.json();
+    if (!response.ok) {
+      if (response.status === 401) {
+        Cookies.remove("token");
+        Cookies.remove("tokenExpiresAt");
+        window.location.href = "/";
+      }
+      throw new Error(`Request failed. Response is not ok. Reason: ${json.message}`);
+    }
     if (json.type === "Error") {
       throw new Error("Request failed. Type is Error");
     }

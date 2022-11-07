@@ -6,8 +6,8 @@ import Cookies from "js-cookie";
 export default defineComponent({
   data() {
     return {
-      email: "test@test.tst",
-      password: "123",
+      email: "",
+      password: "",
       serverErrorMessage: null as string | null,
       loading: false,
     }
@@ -29,9 +29,7 @@ export default defineComponent({
         const { successfully, message } = await this.userStore.signIn(this.email, this.password);
         if (!successfully) {
           this.serverErrorMessage = message;
-          setTimeout(() => {
-            this.serverErrorMessage = null;
-          }, 3000);
+          setTimeout(() => { this.serverErrorMessage = null }, 3000);
           return;
         }
         this.$router.push("/");
@@ -47,18 +45,15 @@ export default defineComponent({
 
 <template>
   <form
-    v-if="!serverErrorMessage"
     class="root"
     @submit.prevent="signIn"
   >
     <label>Email <input required v-model="email" type="email"></label>
     <label>Password <input required v-model="password" type="password"></label>
     <button :disabled="!email || !password || loading">Sign In</button>
+    <span v-if="serverErrorMessage" class="error">{{ serverErrorMessage }}</span>
     <a href="/sign-up">Register a new user</a>
   </form>
-  <div v-if="serverErrorMessage">
-    <h1>{{ serverErrorMessage }}</h1>
-  </div>
 </template>
 
 <style lang="scss" scoped>

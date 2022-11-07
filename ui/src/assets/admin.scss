@@ -14,4 +14,15 @@
   a {
     margin-top: 10px;
   }
+  table {
+    tr {
+      cursor: pointer;
+      &:hover {
+        background-color: lightgrey;
+      }
+    }
+  }
+  .error {
+    color: red;
+  }
 }

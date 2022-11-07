@@ -65,7 +65,7 @@ export default defineComponent({
         placeholder="Please enter password again"
       />
     </label>
-    <button :disabled="this.loading || !this.password || (this.password !== this.passwordCompared)">
+    <button :disabled="loading || !this.password || (this.password !== this.passwordCompared)">
       Finish Sign Up
     </button>
   </form>

@@ -2,18 +2,26 @@ import { defineStore } from "pinia";
 import Cookies from "js-cookie"
 import { RequestService } from "@/services/RequestService";
 
-type ServerResponse = {
+export type ServerResponse = {
   successfully: boolean;
   message: string;
 }
 
-export interface User {
-  userId: number;
+type ServerResponseUsers = {
+  users: User[];
+}
+
+export type User = {
+  id: number;
+  enabled: boolean;
   email: string;
   firstName: string | null;
   lastName: string | null;
   accessToken: string;
   accessTokenExpiresAt: string;
+  createdAt: string;
+  regKey: string | null;
+  role: "user" | "admin";
 }
 
 type ServerResponseAuth = ServerResponse & {
@@ -45,18 +53,23 @@ export const useUserStore = defineStore("user", {
         true
       );
 
-      this.user = json.currentUser;
-      Cookies.set("token", this.user.accessToken);
-      Cookies.set(
-        "tokenExpiresAt",
-        new Date(this.user.accessTokenExpiresAt + " UTC").getTime().toString()
-      );
-
+      const { successfully } = json;
+      if (successfully && json.currentUser) {
+        this.user = json.currentUser;
+        Cookies.set("token", this.user.accessToken);
+        Cookies.set(
+          "tokenExpiresAt",
+          new Date(this.user.accessTokenExpiresAt + " UTC").getTime().toString()
+        );
+      }
 
       return {
-        successfully: json.successfully,
+        successfully,
         message: json.message,
       };
+    },
+    signOut() {
+      return RequestService.get<ServerResponse>("/user/sign-out");
     },
     signUp(email: string): Promise<ServerResponse> {
       return RequestService.post<ServerResponseAuth>(
@@ -71,6 +84,33 @@ export const useUserStore = defineStore("user", {
         { password, regKey },
         true
       );
+    },
+    async saveCurrentUser(user: User): Promise<ServerResponse> {
+      const json = await this.save(user);
+
+      this.user = json.currentUser;
+
+      return {
+        successfully: json.successfully,
+        message: json.message,
+      };
+    },
+    save(user: User): Promise<ServerResponse & {currentUser: User}> {
+      return RequestService.post<ServerResponse & {currentUser: User}>(
+        "/user/save",
+        { ...user }
+      );
+    },
+    async findAllUsers(): Promise<User[]> {
+      const json = await RequestService.get<ServerResponseUsers>("/user/all");
+
+      return json.users;
+    },
+    deleteUserById(id: number): Promise<ServerResponse> {
+      return RequestService.delete<ServerResponse>("/user/delete", { id });
+    },
+    cloneUserById(id: number): Promise<ServerResponse> {
+      return RequestService.get<ServerResponse>("/user/clone", { id });
     },
   }
 });

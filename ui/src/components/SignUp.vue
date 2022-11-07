@@ -51,7 +51,7 @@ export default defineComponent({
         placeholder="Please enter your email"
       />
     </label>
-    <button :disabled="this.loading">Sign Up</button>
+    <button :disabled="loading">Sign Up</button>
   </form>
   <div v-if="serverMessage">
     <h1>{{ serverMessage }}</h1>

@@ -14,6 +14,11 @@ const router = createRouter({
       component: () => import("@/components/SignIn.vue"),
     },
     {
+      path: "/admin/users",
+      name: "admin-users",
+      component: () => import("@/components/Users.vue"),
+    },
+    {
       path: "/sign-up/confirm",
       name: "sign-up-confirm",
       component: () => import("@/components/SignUpConfirm.vue"),
@@ -22,6 +27,11 @@ const router = createRouter({
       path: "/sign-up",
       name: "sign-up",
       component: () => import("@/components/SignUp.vue"),
+    },
+    {
+      path: "/profile",
+      name: "profile",
+      component: () => import("@/components/Profile.vue"),
     },
   ],
 });
